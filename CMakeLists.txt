@@ -15,11 +15,11 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(SDL3)
 
-# 2. SDL3_ttf (Texte) <--- NOUVEAU
+# 2. SDL3_ttf (Texte)
 FetchContent_Declare(
   SDL3_ttf
   GIT_REPOSITORY https://github.com/libsdl-org/SDL_ttf.git
-  GIT_TAG release-3.1.0 
+  GIT_TAG main  
 )
 FetchContent_MakeAvailable(SDL3_ttf)
 
