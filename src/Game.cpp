@@ -53,9 +53,31 @@ void Game::runGraphics() {
 // ... Le reste (handleEvents, checkGameStatus) ne change pas
 void Game::handleEvents() {
     SDL_Event event;
+
+    // On boucle tant qu'il y a des événements à traiter (clic, clavier, etc.)
     while (SDL_PollEvent(&event)) {
-        if (event.type == SDL_EVENT_QUIT) isRunning = false;
+        
+        // 1. Gestion de la fermeture (Croix de la fenêtre)
+        if (event.type == SDL_EVENT_QUIT) {
+            isRunning = false;
+        } 
+        
+        // 2. Gestion des touches clavier
         else if (event.type == SDL_EVENT_KEY_DOWN) {
+            
+            // --- NOUVEAU BLOC : VERROUILLAGE ---
+            // Si la partie est finie (Gagné ou Perdu)
+            if (grid.checkGameOver() || hasWon) {
+                // On autorise SEULEMENT la touche Echap pour quitter
+                if (event.key.key == SDLK_ESCAPE) {
+                    isRunning = false;
+                }
+                // Pour n'importe quelle autre touche, on ne fait RIEN.
+                // On utilise 'continue' pour passer à l'événement suivant sans bouger les tuiles.
+                continue; 
+            }
+            // -----------------------------------
+
             bool moved = false;
             switch (event.key.key) {
                 case SDLK_UP:    grid.moveUp(); moved = true; break;
@@ -64,7 +86,10 @@ void Game::handleEvents() {
                 case SDLK_RIGHT: grid.moveRight(); moved = true; break;
                 case SDLK_ESCAPE: isRunning = false; break;
             }
-            if (moved) grid.spawnRandomTile();
+
+            if (moved) {
+                grid.spawnRandomTile();
+            }
         }
     }
 }
