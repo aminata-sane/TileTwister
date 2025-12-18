@@ -43,3 +43,10 @@ void Grid::spawnRandomTile() {
     int value = (rand() % 10 == 0) ? 4 : 2;
     data[target.first][target.second] = value;
 }
+
+int Grid::getTile(int x, int y) const {
+    if (x >= 0 && x < 4 && y >= 0 && y < 4) {
+        return data[x][y];
+    }
+    return -1; // Erreur
+}

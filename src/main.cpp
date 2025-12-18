@@ -1,15 +1,13 @@
 #include <iostream>
 #include <cstdlib>
 #include <ctime>
-#include "../include/Game.hpp" // On inclut Game, plus besoin de Grid ici
+#include "../include/Game.hpp"
 
-int main() {
-    // Initialisation du hasard (une seule fois pour tout le programme)
+int main(int argc, char* argv[]) { // Signature main pour SDL
     std::srand(std::time(nullptr)); 
 
-    // On crée le jeu et on le lance
     Game myGame;
-    myGame.runConsole();
+    myGame.runGraphics(); // <--- On lance le mode graphique !
 
     return 0;
 }

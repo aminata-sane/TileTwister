@@ -14,6 +14,8 @@ public:   // Ici on mettra les actions possibles (bouger, afficher...)
     bool checkWin();
     bool checkGameOver();
 
+    int getTile(int x, int y) const; // Lecture seule d'une case
+
 private: // Ici on met les données cachées (les nombres)
     std::array<std::array<int, 4>, 4> data;
 };
