@@ -1,35 +1,25 @@
 #include "../include/Game.hpp"
 #include <SDL3/SDL.h>
-
-// Ce fichier ne gère QUE l'affichage graphique
+#include <string> // Nécessaire pour convertir int en string
 
 void Game::render() {
-    // 1. Fond de la fenêtre (Gris foncé)
     SDL_SetRenderDrawColor(renderer, 187, 173, 160, 255); 
     SDL_RenderClear(renderer);
 
-    // 2. On parcourt toutes les cases de la grille
     for (int i = 0; i < 4; i++) {
         for (int j = 0; j < 4; j++) {
-            // On récupère la valeur
-            int val = grid.getTile(i, j);
-            // On dessine le carré
-            drawTile(i, j, val);
+            drawTile(i, j, grid.getTile(i, j));
         }
     }
-
-    // 3. Affichage final
     SDL_RenderPresent(renderer);
 }
 
 void Game::drawTile(int x, int y, int value) {
-    // Calcul de la position
+    // 1. Fond coloré
     float xPos = (y * (TILE_SIZE + PADDING)) + PADDING; 
     float yPos = (x * (TILE_SIZE + PADDING)) + PADDING; 
-
     SDL_FRect tileRect = {xPos, yPos, (float)TILE_SIZE, (float)TILE_SIZE};
 
-    // Choix de la couleur
     switch (value) {
         case 0:    SDL_SetRenderDrawColor(renderer, 205, 193, 180, 255); break;
         case 2:    SDL_SetRenderDrawColor(renderer, 238, 228, 218, 255); break;
@@ -38,13 +28,36 @@ void Game::drawTile(int x, int y, int value) {
         case 16:   SDL_SetRenderDrawColor(renderer, 245, 149, 99,  255); break;
         case 32:   SDL_SetRenderDrawColor(renderer, 246, 124, 95,  255); break;
         case 64:   SDL_SetRenderDrawColor(renderer, 246, 94,  59,  255); break;
-        case 128:  SDL_SetRenderDrawColor(renderer, 237, 207, 114, 255); break;
-        case 256:  SDL_SetRenderDrawColor(renderer, 237, 204, 97,  255); break;
-        case 512:  SDL_SetRenderDrawColor(renderer, 237, 200, 80,  255); break;
-        case 1024: SDL_SetRenderDrawColor(renderer, 237, 197, 63,  255); break;
-        case 2048: SDL_SetRenderDrawColor(renderer, 237, 194, 46,  255); break;
-        default:   SDL_SetRenderDrawColor(renderer, 60,  58,  50,  255); break;
+        default:   
+            if (value > 2048) SDL_SetRenderDrawColor(renderer, 60, 58, 50, 255);
+            else SDL_SetRenderDrawColor(renderer, 237, 207, 114, 255); 
+            break;
     }
-
     SDL_RenderFillRect(renderer, &tileRect);
+
+    // 2. Texte (Chiffre)
+    if (value != 0 && font) {
+        // Couleur du texte : Foncé pour 2 et 4, Blanc pour le reste
+        SDL_Color textColor = (value <= 4) ? SDL_Color{119, 110, 101, 255} : SDL_Color{249, 246, 242, 255};
+
+        SDL_Surface* textSurface = TTF_RenderText_Blended(font, std::to_string(value).c_str(), 0, textColor);
+        
+        if (textSurface) {
+            SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
+            
+            // Centrage
+            float textW = (float)textSurface->w;
+            float textH = (float)textSurface->h;
+            SDL_FRect textRect = {
+                xPos + (TILE_SIZE - textW) / 2,
+                yPos + (TILE_SIZE - textH) / 2,
+                textW, textH
+            };
+
+            SDL_RenderTexture(renderer, textTexture, NULL, &textRect);
+
+            SDL_DestroySurface(textSurface);
+            SDL_DestroyTexture(textTexture);
+        }
+    }
 }
