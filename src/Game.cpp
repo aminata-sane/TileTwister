@@ -7,42 +7,54 @@ Game::Game() {
     hasWon = false;
     window = nullptr;
     renderer = nullptr;
+    font = nullptr; // <--- On initialise à null par sécurité
 }
 
-// Le destructeur nettoie la mémoire quand l'objet Game est détruit
 Game::~Game() {
+    if (font) TTF_CloseFont(font); // <--- On ferme la police proprement
     if (renderer) SDL_DestroyRenderer(renderer);
     if (window) SDL_DestroyWindow(window);
+    TTF_Quit(); // <--- On éteint le module texte
     SDL_Quit();
 }
 
 void Game::runGraphics() {
-    // 1. Initialisation SDL
     if (!SDL_Init(SDL_INIT_VIDEO)) {
-        std::cerr << "Erreur SDL_Init : " << SDL_GetError() << std::endl;
+        std::cerr << "Erreur SDL : " << SDL_GetError() << std::endl;
         return;
     }
 
-    // 2. Création Fenêtre et Renderer
+    // 1. Initialisation du système de texte
+    if (!TTF_Init()) {
+        std::cerr << "Erreur TTF_Init : " << SDL_GetError() << std::endl;
+        return;
+    }
+
+    // 2. Chargement de la police
+    font = TTF_OpenFont("../assets/MyCustomFont.ttf", 64.0f);
+    
+    if (!font) {
+        std::cerr << "Erreur chargement police : " << SDL_GetError() << std::endl;
+        // On continue quand même, mais sans texte
+    }
+
     if (!SDL_CreateWindowAndRenderer("Tile Twister - SDL3", 600, 600, 0, &window, &renderer)) {
-        std::cerr << "Erreur Fenêtre/Renderer : " << SDL_GetError() << std::endl;
+        std::cerr << "Erreur Fenêtre : " << SDL_GetError() << std::endl;
         return;
     }
 
-    // 3. Boucle principale du jeu
     while (isRunning) {
-        handleEvents();     // Écouter le clavier
-        checkGameStatus();  // Vérifier victoire/défaite
-        render();           // Dessiner
+        handleEvents();
+        checkGameStatus();
+        render();
     }
 }
 
+// ... Le reste (handleEvents, checkGameStatus) ne change pas
 void Game::handleEvents() {
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
-        if (event.type == SDL_EVENT_QUIT) {
-            isRunning = false;
-        } 
+        if (event.type == SDL_EVENT_QUIT) isRunning = false;
         else if (event.type == SDL_EVENT_KEY_DOWN) {
             bool moved = false;
             switch (event.key.key) {
@@ -52,24 +64,17 @@ void Game::handleEvents() {
                 case SDLK_RIGHT: grid.moveRight(); moved = true; break;
                 case SDLK_ESCAPE: isRunning = false; break;
             }
-
-            if (moved) {
-                grid.spawnRandomTile();
-                // On pourrait ajouter un petit son ici plus tard
-            }
+            if (moved) grid.spawnRandomTile();
         }
     }
 }
 
 void Game::checkGameStatus() {
     if (!hasWon && grid.checkWin()) {
-        std::cout << "VICTOIRE ! (Regarde la console)" << std::endl;
         hasWon = true; 
         SDL_SetWindowTitle(window, "Tile Twister - VICTOIRE !");
     }
     if (grid.checkGameOver()) {
-        std::cout << "PERDU !" << std::endl;
         SDL_SetWindowTitle(window, "Tile Twister - GAME OVER");
     }
 }
-
