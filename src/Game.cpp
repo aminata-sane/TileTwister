@@ -2,27 +2,20 @@
 #include <iostream>
 #include <string>
 
-Game::Game() {
+// Le constructeur initialise l'objet 'window', ce qui ouvre la fenêtre SDL automatiquement
+Game::Game() : window("Tile Twister - SDL3", 600, 600) {
     isRunning = true;
     hasWon = false;
-    window = nullptr;
-    renderer = nullptr;
-    font = nullptr; // <--- On initialise à null par sécurité
+    font = nullptr;
 }
 
 Game::~Game() {
-    if (font) TTF_CloseFont(font); // <--- On ferme la police proprement
-    if (renderer) SDL_DestroyRenderer(renderer);
-    if (window) SDL_DestroyWindow(window);
-    TTF_Quit(); // <--- On éteint le module texte
-    SDL_Quit();
+    if (font) TTF_CloseFont(font);
+    TTF_Quit();
+    // Pas besoin de détruire window ou renderer, le destructeur de la classe Window le fera.
 }
 
 void Game::runGraphics() {
-    if (!SDL_Init(SDL_INIT_VIDEO)) {
-        std::cerr << "Erreur SDL : " << SDL_GetError() << std::endl;
-        return;
-    }
 
     // 1. Initialisation du système de texte
     if (!TTF_Init()) {
@@ -35,12 +28,6 @@ void Game::runGraphics() {
     
     if (!font) {
         std::cerr << "Erreur chargement police : " << SDL_GetError() << std::endl;
-        // On continue quand même, mais sans texte
-    }
-
-    if (!SDL_CreateWindowAndRenderer("Tile Twister - SDL3", 600, 600, 0, &window, &renderer)) {
-        std::cerr << "Erreur Fenêtre : " << SDL_GetError() << std::endl;
-        return;
     }
 
     while (isRunning) {
@@ -50,33 +37,23 @@ void Game::runGraphics() {
     }
 }
 
-// ... Le reste (handleEvents, checkGameStatus) ne change pas
 void Game::handleEvents() {
     SDL_Event event;
 
-    // On boucle tant qu'il y a des événements à traiter (clic, clavier, etc.)
     while (SDL_PollEvent(&event)) {
         
-        // 1. Gestion de la fermeture (Croix de la fenêtre)
         if (event.type == SDL_EVENT_QUIT) {
             isRunning = false;
         } 
-        
-        // 2. Gestion des touches clavier
         else if (event.type == SDL_EVENT_KEY_DOWN) {
             
-            // --- NOUVEAU BLOC : VERROUILLAGE ---
-            // Si la partie est finie (Gagné ou Perdu)
+            // Verrouillage fin de partie
             if (grid.checkGameOver() || hasWon) {
-                // On autorise SEULEMENT la touche Echap pour quitter
                 if (event.key.key == SDLK_ESCAPE) {
                     isRunning = false;
                 }
-                // Pour n'importe quelle autre touche, on ne fait RIEN.
-                // On utilise 'continue' pour passer à l'événement suivant sans bouger les tuiles.
                 continue; 
             }
-            // -----------------------------------
 
             bool moved = false;
             switch (event.key.key) {
@@ -97,9 +74,10 @@ void Game::handleEvents() {
 void Game::checkGameStatus() {
     if (!hasWon && grid.checkWin()) {
         hasWon = true; 
-        SDL_SetWindowTitle(window, "Tile Twister - VICTOIRE !");
+        // CORRECTION : On utilise la méthode de notre classe Window
+        window.setTitle("Tile Twister - VICTOIRE !");
     }
     if (grid.checkGameOver()) {
-        SDL_SetWindowTitle(window, "Tile Twister - GAME OVER");
+        window.setTitle("Tile Twister - GAME OVER");
     }
 }

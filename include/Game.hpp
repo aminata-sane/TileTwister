@@ -2,6 +2,7 @@
 #include <SDL3/SDL.h>
 #include <SDL3_ttf/SDL_ttf.h> // <--- NOUVEAU : Importation pour le texte
 #include "Grid.hpp"
+#include "Window.hpp"
 
 class Game {
 public:
@@ -12,11 +13,9 @@ public:
 
 private:
     Grid grid;
+    Window window;
     bool isRunning;
     bool hasWon;
-
-    SDL_Window* window;
-    SDL_Renderer* renderer;
     TTF_Font* font; // La variable qui garde la police en mémoire
 
     const int WINDOW_SIZE = 600;

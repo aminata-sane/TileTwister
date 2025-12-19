@@ -1,46 +1,43 @@
 #include "../include/Game.hpp"
 #include <SDL3/SDL.h>
-#include <string> // Pour std::to_string
+#include <string> 
 
 void Game::render() {
-    // 1. Fond et Grille
-    SDL_SetRenderDrawColor(renderer, 187, 173, 160, 255); 
-    SDL_RenderClear(renderer);
+    // 1. On efface l'écran via notre classe Window
+    window.clear(); 
 
+    // 2. On dessine les tuiles
     for (int i = 0; i < 4; i++) {
         for (int j = 0; j < 4; j++) {
             drawTile(i, j, grid.getTile(i, j));
         }
     }
 
-    // 2. Vérification de l'état pour l'Overlay (Victoire/Défaite)
+    // 3. Overlay (Victoire / Défaite)
     if (hasWon) {
-        // Or semi-transparent
         drawEndScreen("VICTOIRE !", {237, 194, 46, 200}); 
     }
     else if (grid.checkGameOver()) {
-        // Rouge sombre semi-transparent
         drawEndScreen("GAME OVER", {60, 58, 50, 200});
     }
 
-    // 3. Affichage final
-    SDL_RenderPresent(renderer);
+    // 4. On affiche le tout
+    window.display();
 }
 
 void Game::drawEndScreen(std::string message, SDL_Color bgColor) {
     if (!font) return;
 
-    // Activer la transparence
-    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+    // --- CORRECTION ICI ---
+    // On récupère le renderer depuis l'objet window
+    SDL_Renderer* renderer = window.getRenderer();
+    // ----------------------
 
-    // Fond semi-transparent
+    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
     SDL_SetRenderDrawColor(renderer, bgColor.r, bgColor.g, bgColor.b, bgColor.a);
     SDL_RenderFillRect(renderer, NULL); 
-
-    // Remettre le mode normal pour le texte
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
 
-    // Texte en Blanc
     SDL_Color white = {255, 255, 255, 255};
     SDL_Surface* textSurface = TTF_RenderText_Blended(font, message.c_str(), 0, white);
     
@@ -49,7 +46,6 @@ void Game::drawEndScreen(std::string message, SDL_Color bgColor) {
         
         float textW = (float)textSurface->w;
         float textH = (float)textSurface->h;
-        
         SDL_FRect textRect = {
             (WINDOW_SIZE - textW) / 2,
             (WINDOW_SIZE - textH) / 2,
@@ -57,14 +53,17 @@ void Game::drawEndScreen(std::string message, SDL_Color bgColor) {
         };
 
         SDL_RenderTexture(renderer, textTexture, NULL, &textRect);
-
         SDL_DestroySurface(textSurface);
         SDL_DestroyTexture(textTexture);
     }
 }
 
 void Game::drawTile(int x, int y, int value) {
-    // 1. Fond coloré
+    // --- CORRECTION ICI ---
+    // On récupère le renderer depuis l'objet window
+    SDL_Renderer* renderer = window.getRenderer();
+    // ----------------------
+
     float xPos = (y * (TILE_SIZE + PADDING)) + PADDING; 
     float yPos = (x * (TILE_SIZE + PADDING)) + PADDING; 
     SDL_FRect tileRect = {xPos, yPos, (float)TILE_SIZE, (float)TILE_SIZE};
@@ -84,7 +83,6 @@ void Game::drawTile(int x, int y, int value) {
     }
     SDL_RenderFillRect(renderer, &tileRect);
 
-    // 2. Texte (Chiffre)
     if (value != 0 && font) {
         SDL_Color textColor = (value <= 4) ? SDL_Color{119, 110, 101, 255} : SDL_Color{249, 246, 242, 255};
         
@@ -95,7 +93,6 @@ void Game::drawTile(int x, int y, int value) {
             
             float textW = (float)textSurface->w;
             float textH = (float)textSurface->h;
-            
             SDL_FRect textRect = {
                 xPos + (TILE_SIZE - textW) / 2,
                 yPos + (TILE_SIZE - textH) / 2,
@@ -103,7 +100,6 @@ void Game::drawTile(int x, int y, int value) {
             };
 
             SDL_RenderTexture(renderer, textTexture, NULL, &textRect);
-
             SDL_DestroySurface(textSurface);
             SDL_DestroyTexture(textTexture);
         }

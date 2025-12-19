@@ -32,6 +32,7 @@ add_executable(TileTwister
     src/Grid.cpp
     src/Grid_Movement.cpp
     src/Grid_Check.cpp
+    src/Window.cpp
 )
 
 # On lie SDL3 et SDL3_ttf
