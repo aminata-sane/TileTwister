@@ -70,7 +70,40 @@ Après compilation, lancez le jeu :
 ```
 Sur Windows, c'est `TileTwister.exe`
 
+## Tests
+
+Le projet inclut des tests unitaires avec Google Test. Après compilation, lancez les tests :
+```
+./UnitTests
+```
+
 ## Dépannage
 
 - Assurez-vous que CMake est installé.
 - Pour Windows, installez Visual Studio avec le développement C++ ou MinGW.
+
+
+## Rappel des bonnes pratiques :
+     
+   ## Pour MacOs: 
+- Pour configurer : cd build && cmake ..
+- Pour compiler : cd build && make
+- Pour lancer le jeu : cd build && ./TileTwister
+- Pour lancer les tests : cd build && ./UnitTests
+
+    ## Pour Windows avec MinGW :
+
+Configurer : cd build && cmake .. -G "MinGW Makefiles"
+Compiler : cd build && mingw32-make
+Lancer le jeu : cd build && TileTwister.exe
+Lancer les tests : cd build && UnitTests.exe
+
+   ## Pour Windows avec Visual Studio :
+
+Configurer : cd build && cmake .. -G "Visual Studio 16 2019" (adapte la version)
+Compiler : Ouvre TileTwister.sln dans Visual Studio et build, ou utilise msbuild TileTwister.sln en ligne de commande.
+Lancer le jeu : cd build && TileTwister.exe
+Lancer les tests : cd build && UnitTests.exe
+
+
+Les dépendances (SDL3, Google Test) sont téléchargées automatiquement via CMake, donc ça devrait marcher sur Windows aussi, tant que CMake et un compilateur sont installés.

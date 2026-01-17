@@ -16,6 +16,8 @@ public:   // Ici on mettra les actions possibles (bouger, afficher...)
 
     int getTile(int x, int y) const; // Lecture seule d'une case
 
+    void setTile(int x, int y, int value); // Pour les tests
+
     static const int TARGET = 2048;
 
 private: // Ici on met les données cachées (les nombres)

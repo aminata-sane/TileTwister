@@ -50,3 +50,9 @@ int Grid::getTile(int x, int y) const {
     }
     return -1; // Erreur
 }
+
+void Grid::setTile(int x, int y, int value) {
+    if (x >= 0 && x < 4 && y >= 0 && y < 4) {
+        data[x][y] = value;
+    }
+}
